@@ -1,5 +1,9 @@
 # CASA O NADA
 
+**Para estudiar el código:** [Guía paso a paso, recorrido de una reserva y preguntas de defensa](docs/GUIA_ESTUDIO.md).
+
+El catálogo incluye fotografías reales de referencia por categoría. [Fuentes y créditos](docs/CREDITOS_FOTOS.md).
+
 Proyecto académico de reservas inmobiliarias para Desarrollo de Aplicaciones Distribuidas, adaptado de las guías S01–S16 de Angel Sullon Macalupu (UPeU). Incluye S07b. La implementación parte del repositorio público del docente; ver `docs/ORIGEN.md`.
 
 ## Arranque

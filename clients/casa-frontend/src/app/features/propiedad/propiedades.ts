@@ -4,9 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth-service';
 import { environment } from '../../../environments/environment';
+import { FotoPropiedad } from './foto-propiedad';
 @Component({
   selector: 'app-propiedades',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, FotoPropiedad],
   template: `
     <div class="eyebrow">ENCUENTRA TU PRÓXIMO ESPACIO</div>
     <h1>Una casa. Un nuevo comienzo.</h1>
@@ -24,7 +25,7 @@ import { environment } from '../../../environments/environment';
     <div class="property-grid">
       @for (p of filtradas(); track p.id) {
         <article class="property-card">
-          <div class="property-art">⌂</div>
+          <app-foto-propiedad [tipo]="p.tipoPropiedad?.nombre ?? ''" />
           <span class="eyebrow">{{ p.tipoPropiedad?.nombre }} · {{ p.ciudad }}</span>
           <h2>{{ p.nombre }}</h2>
           <p>{{ p.descripcion }}</p>
@@ -117,20 +118,16 @@ export class Propiedades implements OnInit {
   }
   ngOnInit() {
     this.cargar();
-    this.http
-      .get<any[]>(this.base + '/tipos-propiedad')
-      .subscribe({
-        next: (x) => this.tipos.set(x),
-        error: () => this.mensaje.set('No se pudieron cargar los tipos de propiedad.'),
-      });
+    this.http.get<any[]>(this.base + '/tipos-propiedad').subscribe({
+      next: (x) => this.tipos.set(x),
+      error: () => this.mensaje.set('No se pudieron cargar los tipos de propiedad.'),
+    });
   }
   cargar() {
-    this.http
-      .get<any[]>(this.base + '/propiedades')
-      .subscribe({
-        next: (x) => this.propiedades.set(x),
-        error: () => this.mensaje.set('No se pudo conectar con el servicio de propiedades.'),
-      });
+    this.http.get<any[]>(this.base + '/propiedades').subscribe({
+      next: (x) => this.propiedades.set(x),
+      error: () => this.mensaje.set('No se pudo conectar con el servicio de propiedades.'),
+    });
   }
   filtradas() {
     return this.propiedades().filter((p) =>
@@ -156,11 +153,9 @@ export class Propiedades implements OnInit {
   }
   eliminar(id: number) {
     if (!confirm('¿Eliminar esta propiedad?')) return;
-    this.http
-      .delete(this.base + '/propiedades/' + id)
-      .subscribe({
-        next: () => this.cargar(),
-        error: () => this.mensaje.set('No se pudo eliminar la propiedad.'),
-      });
+    this.http.delete(this.base + '/propiedades/' + id).subscribe({
+      next: () => this.cargar(),
+      error: () => this.mensaje.set('No se pudo eliminar la propiedad.'),
+    });
   }
 }

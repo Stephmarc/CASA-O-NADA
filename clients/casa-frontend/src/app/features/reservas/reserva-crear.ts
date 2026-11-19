@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PropiedadService } from '../propiedad/propiedad-service';
 import { Propiedad } from '../propiedad/propiedad.model';
+import { FotoPropiedad } from '../propiedad/foto-propiedad';
 import { ReservaService } from './reserva-service';
 import { ReservaResponse } from './reserva.model';
 
@@ -13,7 +14,7 @@ interface ItemSolicitud {
 
 @Component({
   selector: 'app-reserva-crear',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, FotoPropiedad],
   templateUrl: './reserva-crear.html',
 })
 export class ReservaCrear implements OnInit {

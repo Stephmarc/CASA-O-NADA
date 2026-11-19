@@ -19,6 +19,7 @@
   <div class="property-grid">
     @for (p of propiedades(); track p.id) {
       <article class="property-card">
+        <app-foto-propiedad [tipo]="p.tipoPropiedad?.nombre ?? ''" />
         <h2>{{ p.nombre }}</h2>
         <p>{{ p.descripcion }}</p>
         <strong>S/ {{ p.precio }}</strong>
