@@ -1,5 +1,7 @@
 # Guía para entender y sustentar CASA O NADA
 
+Para preparar la exposición individual, consulta las guías de [Stephmarc](GUIA_ESTUDIO_STEPHMARC.md) y [Alanguia](GUIA_ESTUDIO_ALANGUIA.md), con enlaces a métodos concretos, ejercicios y comandos. El [ensayo conjunto](EXPOSICION_Y_CAMBIOS.md) explica cómo resolver cambios en vivo.
+
 Empieza por el recorrido de una reserva. Después estudia las clases que participan en ese recorrido. No necesitas memorizar todo el repositorio de una vez.
 
 ## 1. Qué construimos

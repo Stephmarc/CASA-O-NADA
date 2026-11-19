@@ -1,5 +1,7 @@
 # Reparto propuesto y sustentación
 
+Guías con archivos, métodos y ejercicios: [Stephmarc](GUIA_ESTUDIO_STEPHMARC.md), [Alanguia](GUIA_ESTUDIO_ALANGUIA.md) y [ensayo de cambios en vivo](EXPOSICION_Y_CAMBIOS.md).
+
 Esta es una propuesta para estudiar, revisar y asumir responsabilidades; no afirma que los integrantes ya hayan realizado estos aportes.
 
 | Integrante | Responsabilidad principal | Verificación y explicación |
