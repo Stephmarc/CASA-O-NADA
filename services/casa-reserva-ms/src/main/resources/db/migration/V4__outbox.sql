@@ -1,0 +1,1 @@
+CREATE TABLE eventos_pendientes(id BIGSERIAL PRIMARY KEY,tipo_evento VARCHAR(255),reserva_id BIGINT,id_cliente VARCHAR(100), total NUMERIC(19,2), metodo_pago VARCHAR(30),origen VARCHAR(255),timestamp BIGINT);

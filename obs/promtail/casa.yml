@@ -1,0 +1,14 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+positions:
+  filename: /tmp/positions.yaml
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+scrape_configs:
+  - job_name: casa
+    static_configs:
+      - targets: [localhost]
+        labels: {job: casa, __path__: /logs/services/*/logs/*.log}
+      - targets: [localhost]
+        labels: {job: casa-infra, __path__: /logs/infra/*/logs/*.log}

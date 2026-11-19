@@ -1,0 +1,18 @@
+name: casa-propiedad-dev
+
+services:
+  postgres-propiedad-dev:
+    image: postgres:16-alpine
+    container_name: casa-postgres-propiedad-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: casa_propiedad_db
+      POSTGRES_USER: casa
+      POSTGRES_PASSWORD: casa
+    ports:
+      - "15432:5432"
+    volumes:
+      - casa_propiedad_dev_data:/var/lib/postgresql/data
+
+volumes:
+  casa_propiedad_dev_data:

@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 10s
+rule_files: ["/etc/prometheus/alerts.yml"]
+scrape_configs:
+  - job_name: config
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["config:8080"]
+  - job_name: eureka
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["eureka:8080"]
+  - job_name: gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["gateway:8080"]
+  - job_name: propiedad
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["propiedad:8080"]
+  - job_name: propiedad2
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["propiedad2:8080"]
+  - job_name: reserva
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["reserva:8080"]
+  - job_name: pago
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["pago:8080"]
+  - job_name: cliente
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["cliente:8080"]
+  - job_name: keycloak
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["keycloak:9000"]

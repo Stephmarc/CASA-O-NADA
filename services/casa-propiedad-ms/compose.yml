@@ -1,0 +1,54 @@
+name: casa-propiedad-prod
+
+services:
+  postgres-propiedad:
+    image: postgres:16-alpine
+    container_name: casa-postgres-propiedad
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - casa_propiedad_data:/var/lib/postgresql/data
+    ports:
+      - "25432:5432"
+    networks:
+      - casa-propiedad-int
+
+  casa-propiedad-ms:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres-propiedad:
+        condition: service_healthy
+    #ports:
+    #  - "28080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      DB_HOST: casa-postgres-propiedad
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - casa-propiedad-int
+      - casa-prod-net
+
+volumes:
+  casa_propiedad_data:
+
+networks:
+  casa-propiedad-int:
+    name: casa-propiedad-int
+  casa-prod-net:
+    external: true

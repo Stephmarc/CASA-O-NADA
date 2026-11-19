@@ -1,0 +1,618 @@
+{
+  "name": "casa-o-nada",
+  "services": {
+    "postgres": {
+      "image": "postgres:17-alpine",
+      "environment": {
+        "POSTGRES_USER": "casa",
+        "POSTGRES_PASSWORD": "casa-local"
+      },
+      "volumes": [
+        "db:/var/lib/postgresql/data",
+        "./infra/init-databases.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U casa"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "keycloak": {
+      "image": "quay.io/keycloak/keycloak:26.8.0",
+      "command": [
+        "start-dev",
+        "--import-realm"
+      ],
+      "environment": {
+        "KC_BOOTSTRAP_ADMIN_USERNAME": "admin",
+        "KC_BOOTSTRAP_ADMIN_PASSWORD": "AdminLocal2026!",
+        "KC_DB": "postgres",
+        "KC_DB_URL": "jdbc:postgresql://postgres:5432/casa_keycloak_db",
+        "KC_DB_USERNAME": "casa",
+        "KC_DB_PASSWORD": "casa-local",
+        "KC_HOSTNAME": "http://localhost:18180",
+        "KC_METRICS_ENABLED": "true",
+        "KC_HEALTH_ENABLED": "true",
+        "JAVA_OPTS_KC_HEAP": "-Xms128m -Xmx512m"
+      },
+      "ports": [
+        "127.0.0.1:18180:8080",
+        "127.0.0.1:19000:9000"
+      ],
+      "volumes": [
+        "./keycloak/realm-casa.json:/opt/keycloak/data/import/realm.json:ro"
+      ],
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "kafka": {
+      "image": "apache/kafka:4.2.1",
+      "environment": {
+        "KAFKA_NODE_ID": "1",
+        "KAFKA_PROCESS_ROLES": "broker,controller",
+        "KAFKA_LISTENERS": "PLAINTEXT://:9092,CONTROLLER://:9093",
+        "KAFKA_ADVERTISED_LISTENERS": "PLAINTEXT://kafka:9092",
+        "KAFKA_CONTROLLER_LISTENER_NAMES": "CONTROLLER",
+        "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT",
+        "KAFKA_CONTROLLER_QUORUM_VOTERS": "1@kafka:9093",
+        "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": "1",
+        "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR": "1",
+        "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR": "1"
+      },
+      "volumes": [
+        "kafka:/tmp/kraft-combined-logs"
+      ]
+    },
+    "kafka-ui": {
+      "image": "provectuslabs/kafka-ui:v0.7.2",
+      "ports": [
+        "127.0.0.1:18085:8080"
+      ],
+      "environment": {
+        "KAFKA_CLUSTERS_0_NAME": "casa",
+        "KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS": "kafka:9092"
+      },
+      "depends_on": [
+        "kafka"
+      ]
+    },
+    "config": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "infra/casa-config"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "native",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "config",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "config:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "CONFIG_REPO_LOCATION": "file:/config-repo",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18888:8080"
+      ],
+      "volumes": [
+        "./infra/casa-config/logs:/app/logs",
+        "./infra/casa-config/config-repo:/config-repo:ro"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      }
+    },
+    "eureka": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "infra/casa-eureka"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "eureka",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "eureka:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18761:8080"
+      ],
+      "volumes": [
+        "./infra/casa-eureka/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "gateway": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "infra/casa-gateway"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "gateway",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "gateway:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18080:8080"
+      ],
+      "volumes": [
+        "./infra/casa-gateway/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "propiedad": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-propiedad-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "propiedad",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "propiedad:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_propiedad_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18102:8080"
+      ],
+      "volumes": [
+        "./services/casa-propiedad-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "propiedad2": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-propiedad-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "propiedad2",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "propiedad2:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_propiedad_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18103:8080"
+      ],
+      "volumes": [
+        "./services/casa-propiedad-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "reserva": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-reserva-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "reserva",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "reserva:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_reserva_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18104:8080"
+      ],
+      "volumes": [
+        "./services/casa-reserva-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "pago": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-pago-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "pago",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "pago:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_pago_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18105:8080"
+      ],
+      "volumes": [
+        "./services/casa-pago-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "cliente": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-cliente-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "cliente",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "cliente:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_cliente_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18106:8080"
+      ],
+      "volumes": [
+        "./services/casa-cliente-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "frontend": {
+      "build": {
+        "context": "clients/casa-frontend"
+      },
+      "ports": [
+        "127.0.0.1:4200:80"
+      ],
+      "depends_on": [
+        "gateway"
+      ]
+    },
+    "prometheus": {
+      "image": "prom/prometheus:v3.5.0",
+      "ports": [
+        "127.0.0.1:19090:9090"
+      ],
+      "volumes": [
+        "./obs/prometheus/casa.yml:/etc/prometheus/prometheus.yml:ro",
+        "./obs/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro"
+      ]
+    },
+    "loki": {
+      "image": "grafana/loki:3.5.0",
+      "command": [
+        "-config.file=/etc/loki/local-config.yaml"
+      ],
+      "ports": [
+        "127.0.0.1:13100:3100"
+      ]
+    },
+    "promtail": {
+      "image": "grafana/promtail:3.5.0",
+      "command": [
+        "-config.file=/etc/promtail/config.yml"
+      ],
+      "volumes": [
+        "./obs/promtail/casa.yml:/etc/promtail/config.yml:ro",
+        "./services:/logs/services:ro",
+        "./infra:/logs/infra:ro"
+      ],
+      "depends_on": [
+        "loki"
+      ]
+    },
+    "grafana": {
+      "image": "grafana/grafana:12.1.0",
+      "ports": [
+        "127.0.0.1:13000:3000"
+      ],
+      "environment": {
+        "GF_SECURITY_ADMIN_PASSWORD": "Casa2026!"
+      },
+      "volumes": [
+        "./obs/grafana/casa:/etc/grafana/provisioning:ro",
+        "./obs/grafana/dashboards:/var/lib/grafana/dashboards:ro"
+      ],
+      "depends_on": [
+        "prometheus",
+        "loki"
+      ]
+    },
+    "auth": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.java",
+        "args": {
+          "APP": "services/casa-auth-ms"
+        }
+      },
+      "environment": {
+        "SERVER_PORT": "8080",
+        "SPRING_PROFILES_ACTIVE": "${CASA_PROFILE:-dev}",
+        "CONFIG_SERVER_URL": "http://config:8080",
+        "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE": "http://eureka:8080/eureka/",
+        "EUREKA_INSTANCE_HOSTNAME": "auth",
+        "EUREKA_INSTANCE_PREFER_IP_ADDRESS": "false",
+        "EUREKA_INSTANCE_INSTANCE_ID": "auth:8080",
+        "SPRING_DEVTOOLS_RESTART_ENABLED": "false",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI": "http://localhost:18180/realms/casa",
+        "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI": "http://keycloak:8080/realms/casa/protocol/openid-connect/certs",
+        "CASA_INTERNAL_SECRET": "${CASA_INTERNAL_SECRET:-casa-local-internal-change-me}",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://postgres:5432/casa_auth_db",
+        "SPRING_DATASOURCE_USERNAME": "casa",
+        "SPRING_DATASOURCE_PASSWORD": "casa-local",
+        "SPRING_KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+        "DOCUMENTOS_TOKEN": "${DOCUMENTOS_TOKEN:-}",
+        "JWT_ISSUER": "http://localhost:18107",
+        "JAVA_TOOL_OPTIONS": "-Xms64m -Xmx384m -XX:+UseSerialGC"
+      },
+      "ports": [
+        "127.0.0.1:18107:8080"
+      ],
+      "volumes": [
+        "./services/casa-auth-ms/logs:/app/logs"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "bash -c \"echo > /dev/tcp/localhost/8080\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "30s"
+      },
+      "depends_on": {
+        "config": {
+          "condition": "service_healthy"
+        },
+        "eureka": {
+          "condition": "service_healthy"
+        },
+        "postgres": {
+          "condition": "service_healthy"
+        }
+      },
+      "profiles": [
+        "s07"
+      ]
+    }
+  },
+  "volumes": {
+    "db": {},
+    "kafka": {}
+  }
+}

@@ -1,0 +1,28 @@
+<header class="header">
+  <a routerLink="/" class="home-link">CASA O NADA</a>
+  <div class="sesion-area">
+    @if (auth.autenticado()) {
+      <span class="sesion">{{ auth.nombreUsuario() }}</span>
+      <button type="button" (click)="auth.cerrarSesion()">Cerrar sesión</button>
+    } @else {
+      <button type="button" (click)="auth.iniciarLogin()">Iniciar sesión</button>
+    }
+  </div>
+</header>
+
+<div class="body">
+  <nav class="sidebar" aria-label="Menú principal">
+    <a routerLink="/">Propiedades</a>
+    <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
+    <a routerLink="/tipos-propiedad" routerLinkActive="active">Tipos de propiedad</a>
+    <a routerLink="/reservas/nueva" routerLinkActive="active">Reservar propiedad</a>
+    <a routerLink="/mis-pedidos" routerLinkActive="active">Mis reservas</a>
+    @if (auth.tieneRol('ADMIN')) {
+      <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
+    }
+  </nav>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

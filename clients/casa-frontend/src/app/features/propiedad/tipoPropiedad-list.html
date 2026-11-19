@@ -1,0 +1,37 @@
+@if (cargando()) {
+  <p>Cargando tipos-propiedad...</p>
+} @else if (error()) {
+  <p>{{ error() }}</p>
+} @else {
+  <a routerLink="/tipos-propiedad/nueva">Nueva categoría</a>
+
+  @if (errorAccion()) {
+    <p class="error">{{ errorAccion() }}</p>
+  }
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripcion</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (tipoPropiedad of tiposPropiedad(); track tipoPropiedad.id) {
+        <tr>
+          <td>{{ tipoPropiedad.nombre }}</td>
+          <td>{{ tipoPropiedad.descripcion }}</td>
+          <td>
+            <a [routerLink]="['/tipos-propiedad', tipoPropiedad.id, 'editar']">Editar</a>
+            <button (click)="eliminar(tipoPropiedad.id!)">Eliminar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="3">No hay tipos-propiedad registradas.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

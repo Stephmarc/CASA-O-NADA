@@ -1,0 +1,100 @@
+{
+  "realm": "casa",
+  "enabled": true,
+  "displayName": "CASA O NADA",
+  "registrationAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN"
+      },
+      {
+        "name": "CLIENTE"
+      }
+    ]
+  },
+  "defaultRoles": [
+    "CLIENTE"
+  ],
+  "clients": [
+    {
+      "clientId": "casa-frontend",
+      "name": "CASA O NADA",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "casa-pruebas",
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@casa.local",
+      "emailVerified": true,
+      "firstName": "admin",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Casa2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN",
+        "CLIENTE"
+      ]
+    },
+    {
+      "username": "cliente1",
+      "enabled": true,
+      "email": "cliente1@casa.local",
+      "emailVerified": true,
+      "firstName": "cliente1",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Casa2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "CLIENTE"
+      ]
+    },
+    {
+      "username": "cliente2",
+      "enabled": true,
+      "email": "cliente2@casa.local",
+      "emailVerified": true,
+      "firstName": "cliente2",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Casa2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "CLIENTE"
+      ]
+    }
+  ]
+}

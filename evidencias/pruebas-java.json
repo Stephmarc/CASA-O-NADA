@@ -1,0 +1,20 @@
+[
+  {
+    "suite": "pe.edu.upeu.pago.PagoServiceTest",
+    "pruebas": 3,
+    "fallos": 0,
+    "errores": 0
+  },
+  {
+    "suite": "pe.edu.upeu.propiedad.DisponibilidadTest",
+    "pruebas": 3,
+    "fallos": 0,
+    "errores": 0
+  },
+  {
+    "suite": "pe.edu.upeu.reserva.ReservaServiceTest",
+    "pruebas": 5,
+    "fallos": 0,
+    "errores": 0
+  }
+]

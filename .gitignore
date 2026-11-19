@@ -1,0 +1,12 @@
+**/target/
+**/node_modules/
+**/.angular/
+**/logs/
+.env
+*.log
+**/dist/
+**/__pycache__/
+*.pyc
+.env.*
+!.env.example
+evidencias/contenedores.json

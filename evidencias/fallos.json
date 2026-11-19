@@ -1,0 +1,21 @@
+{
+  "fecha": "2026-11-19T10:52:36.337584",
+  "pruebas": [
+    {
+      "prueba": "Reserva persistida con Kafka apagado",
+      "resultado": "PASS"
+    },
+    {
+      "prueba": "Outbox recupera pago al volver Kafka",
+      "resultado": "PASS"
+    },
+    {
+      "prueba": "Dos duplicados no crean otro pago",
+      "resultado": "PASS"
+    },
+    {
+      "prueba": "Caída de propiedad no confirma ni cobra",
+      "resultado": "PASS"
+    }
+  ]
+}

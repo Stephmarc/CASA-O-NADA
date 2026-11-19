@@ -1,0 +1,68 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:15433/casa_cliente_db
+    username: casa
+    password: casa
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  devtools:
+    restart:
+      enabled: true
+      quiet-period: 2s
+      poll-interval: 3s
+    livereload:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    pe.edu.upeu.propiedad: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState, db
+
+eureka:
+  instance:
+    hostname: localhost 
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:18761/eureka
+
+casa:
+  cors:
+    enabled: false
+    allowed-origins: http://localhost:4200
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: ${JWT_ISSUER:http://localhost:18180/realms/casa}
+documentos:
+  url: ${DOCUMENTOS_URL:https://api.apis.net.pe/v2}
+  token: ${DOCUMENTOS_TOKEN:}

@@ -1,0 +1,42 @@
+<div class="eyebrow">TU PRÓXIMO PASO</div>
+<h1>Reserva una propiedad</h1>
+<p>
+  Selecciona una propiedad disponible. El pago es una simulación para la demostración del proyecto.
+</p>
+@if (cargando()) {
+  <p>Cargando propiedades…</p>
+}
+@if (error()) {
+  <p role="alert">{{ error() }}</p>
+}
+@if (resultado(); as r) {
+  <section class="panel">
+    <h2>Reserva #{{ r.id }}</h2>
+    <p>Estado inicial: {{ r.estado }}</p>
+    <a routerLink="/mis-pedidos">Seguir el estado de mi reserva</a>
+  </section>
+} @else {
+  <div class="property-grid">
+    @for (p of propiedades(); track p.id) {
+      <article class="property-card">
+        <h2>{{ p.nombre }}</h2>
+        <p>{{ p.descripcion }}</p>
+        <strong>S/ {{ p.precio }}</strong>
+        <p>{{ p.stock === 1 ? 'Disponible' : 'Reservada' }}</p>
+        <button [disabled]="p.stock !== 1" (click)="agregar(p, 1)">Seleccionar</button>
+      </article>
+    }
+  </div>
+  @for (item of solicitud(); track item.propiedad.id) {
+    <section class="panel">
+      <h2>{{ item.propiedad.nombre }}</h2>
+      <p>Importe de separación: S/ {{ total() }}</p>
+      <label
+        >Forma de pago de demostración<select [(ngModel)]="metodoPago">
+          <option value="TARJETA">Pago aprobado</option>
+          <option value="TARJETA_RECHAZADA">Pago rechazado</option>
+        </select></label
+      ><button [disabled]="enviando()" (click)="confirmar()">Confirmar reserva</button>
+    </section>
+  }
+}

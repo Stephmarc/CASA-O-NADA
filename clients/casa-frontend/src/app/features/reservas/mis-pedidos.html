@@ -1,0 +1,34 @@
+@if (cargando()) {
+  <p>Cargando tus pedidos...</p>
+} @else if (pedidos().length === 0) {
+  <p>Todavía no tienes pedidos. <a routerLink="/reservas/nueva">Crear uno</a>.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Reserva</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Pago</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (pedido of pedidos(); track pedido.reserva.id) {
+        <tr>
+          <td>#{{ pedido.reserva.id }}</td>
+          <td>{{ pedido.reserva.fechaCreacion }}</td>
+          <td>{{ pedido.reserva.total ?? '—' }}</td>
+          <td>{{ etiqueta(pedido.reserva.estado) }}</td>
+          <td>
+            @if (pedido.pago) {
+              {{ pedido.pago.metodoPago }} — {{ pedido.pago.fechaPago }}
+            } @else {
+              —
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

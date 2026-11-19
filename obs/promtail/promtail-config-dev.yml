@@ -1,0 +1,47 @@
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://casa-loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: casa-propiedad-ms
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-propiedad-ms
+          __path__: /var/log/casa-propiedad-ms/*.log
+  - job_name: casa-reserva-ms
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-reserva-ms
+          __path__: /var/log/casa-reserva-ms/*.log
+  - job_name: casa-auth-ms
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-auth-ms
+          __path__: /var/log/casa-auth-ms/*.log
+  - job_name: casa-pago-ms
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-pago-ms
+          __path__: /var/log/casa-pago-ms/*.log
+
+  - job_name: casa-keycloak
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-keycloak
+          __path__: /var/log/casa-keycloak/*.log
+  - job_name: casa-gateway
+    static_configs:
+      - targets: [localhost]
+        labels:
+          application: casa-gateway
+          __path__: /var/log/casa-gateway/*.log

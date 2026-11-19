@@ -1,0 +1,10 @@
+**
+!Dockerfile.java
+!infra/
+!infra/*/
+!infra/*/target/
+!infra/*/target/*.jar
+!services/
+!services/*/
+!services/*/target/
+!services/*/target/*.jar

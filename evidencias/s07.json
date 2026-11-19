@@ -1,0 +1,8 @@
+{
+  "registro": 201,
+  "login": 200,
+  "algoritmo": "RS256",
+  "rol": "CLIENTE",
+  "issuer": "http://localhost:18107",
+  "jwks_publica": true
+}

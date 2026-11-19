@@ -1,0 +1,50 @@
+name: casa-obs-dev
+
+services:
+  casa-prometheus:
+    image: prom/prometheus:v3.14.0
+    container_name: casa-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "19090:9090"
+    volumes:
+      - ./prometheus/prometheus-dev.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  casa-loki:
+    image: grafana/loki:3.7.6
+    container_name: casa-loki-dev
+    restart: unless-stopped
+    ports:
+      - "13100:3100"
+
+  casa-promtail:
+    image: grafana/promtail:3.6.8
+    container_name: casa-promtail-dev
+    restart: unless-stopped
+    volumes:
+      - ./promtail/promtail-config-dev.yml:/etc/promtail/config.yml:ro
+      - ../services/casa-propiedad-ms/logs:/var/log/casa-propiedad-ms:ro
+      - ../services/casa-reserva-ms/logs:/var/log/casa-reserva-ms:ro
+      - ../services/casa-auth-ms/logs:/var/log/casa-auth-ms:ro
+      - ../services/casa-pago-ms/logs:/var/log/casa-pago-ms:ro
+      - ../keycloak/logs:/var/log/casa-keycloak:ro
+      - ../infra/casa-gateway/logs:/var/log/casa-gateway:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - casa-loki
+
+  casa-grafana:
+    image: grafana/grafana:11.4.0
+    container_name: casa-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "13000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - casa-prometheus
+      - casa-loki
