@@ -41,6 +41,9 @@ public class Propiedad {
     @Column(nullable = false)
     private Integer dormitorios;
 
+    @Column(name = "id_vendedor", length = 36)
+    private String idVendedor;
+
     @Version
     private Long version;
 

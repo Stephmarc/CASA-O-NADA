@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                   .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                   .requestMatchers(HttpMethod.GET,"/api/v1/pagos").hasRole("ADMIN")
-                  .anyRequest().authenticated())
+                  .anyRequest().hasRole("CLIENTE"))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                 );

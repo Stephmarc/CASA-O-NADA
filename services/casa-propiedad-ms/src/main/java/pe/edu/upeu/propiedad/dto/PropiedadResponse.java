@@ -23,5 +23,6 @@ public class PropiedadResponse {
     private BigDecimal precio;
     private Boolean activo;
     private Integer stock;
+    private String idVendedor;
     private TipoPropiedadResponse tipoPropiedad;
 }

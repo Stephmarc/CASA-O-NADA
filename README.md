@@ -42,6 +42,18 @@ No se necesita configurar manualmente Keycloak: el realm y los usuarios se impor
 
 Las credenciales son exclusivamente para producción local académica. Los puertos publicados escuchan en loopback. Copia `.env.example` a `.env` para cambiar el secreto interno o configurar `DOCUMENTOS_TOKEN`. No publiques `.env` ni tokens.
 
+## Roles
+
+Hay tres roles en Keycloak. Cada usuario tiene uno solo.
+
+| Rol | Usuario demo | Puede | No puede |
+|---|---|---|---|
+| CLIENTE | cliente1, cliente2 | Ver propiedades, guardar su perfil, reservar, ver sus reservas y sus pagos | Gestionar propiedades, ver datos de otros clientes |
+| VENDEDOR | vendedor1 | Crear propiedades y editar o eliminar solo las suyas | Reservar, gestionar tipos, ver pagos o clientes |
+| ADMIN | admin | Gestionar todas las propiedades y los tipos, ver todos los pagos y clientes | Reservar |
+
+La contraseña de demostración es `Casa2026!`. El Gateway decide por ruta y rol; el servicio dueño del dato vuelve a comprobar quién es el dueño (reservas, pagos y propiedades de un vendedor): lo ajeno responde 404. Quien se registra desde la pantalla de Keycloak queda como CLIENTE. Si el realm ya existía, agrega el rol VENDEDOR y el usuario vendedor1 desde la consola de Keycloak (el JSON solo se importa al crear el realm).
+
 ## Qué hace
 
 El administrador mantiene tipos y propiedades con dirección, ciudad, área y dormitorios. Cada propiedad tiene un único cupo disponible. El cliente entra por Keycloak con Authorization Code + PKCE, registra su perfil, selecciona una propiedad y solicita la reserva. El precio representa la separación, no el valor de compraventa del inmueble.

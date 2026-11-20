@@ -12,6 +12,7 @@ public interface PropiedadMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tipoPropiedad", ignore = true)
+    @Mapping(target = "idVendedor", ignore = true)
     Propiedad toEntity(PropiedadRequest request);
 
     PropiedadResponse toResponse(Propiedad propiedad);

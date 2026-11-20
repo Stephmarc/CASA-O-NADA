@@ -13,11 +13,13 @@
 <div class="body">
   <nav class="sidebar" aria-label="Menú principal">
     <a routerLink="/">Propiedades</a>
-    <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
-    <a routerLink="/tipos-propiedad" routerLinkActive="active">Tipos de propiedad</a>
-    <a routerLink="/reservas/nueva" routerLinkActive="active">Reservar propiedad</a>
-    <a routerLink="/mis-pedidos" routerLinkActive="active">Mis reservas</a>
+    @if (auth.tieneRol('CLIENTE')) {
+      <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
+      <a routerLink="/reservas/nueva" routerLinkActive="active">Reservar propiedad</a>
+      <a routerLink="/mis-pedidos" routerLinkActive="active">Mis reservas</a>
+    }
     @if (auth.tieneRol('ADMIN')) {
+      <a routerLink="/tipos-propiedad" routerLinkActive="active">Tipos de propiedad</a>
       <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
     }
   </nav>

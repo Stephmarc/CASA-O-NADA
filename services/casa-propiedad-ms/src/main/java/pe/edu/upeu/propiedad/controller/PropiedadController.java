@@ -7,6 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,19 +34,24 @@ public class PropiedadController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PropiedadResponse crear(@Valid @RequestBody PropiedadRequest request) {
-        return propiedadService.crear(request);
+    public PropiedadResponse crear(@Valid @RequestBody PropiedadRequest request, @AuthenticationPrincipal Jwt jwt) {
+        return propiedadService.crear(request, jwt.getSubject());
     }
 
     @PutMapping("/{id}")
-    public PropiedadResponse actualizar(@PathVariable Long id, @Valid @RequestBody PropiedadRequest request) {
-        return propiedadService.actualizar(id, request);
+    public PropiedadResponse actualizar(@PathVariable Long id, @Valid @RequestBody PropiedadRequest request,
+                                        @AuthenticationPrincipal Jwt jwt, Authentication auth) {
+        return propiedadService.actualizar(id, request, jwt.getSubject(), esAdmin(auth));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void eliminar(@PathVariable Long id) {
-        propiedadService.eliminar(id);
+    public void eliminar(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt, Authentication auth) {
+        propiedadService.eliminar(id, jwt.getSubject(), esAdmin(auth));
+    }
+
+    private boolean esAdmin(Authentication auth) {
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
     
     @PatchMapping("/{id}/descontar-stock")

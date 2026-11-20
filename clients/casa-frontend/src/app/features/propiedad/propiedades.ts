@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth-service';
 import { environment } from '../../../environments/environment';
 import { FotoPropiedad } from './foto-propiedad';
+import { Propiedad } from './propiedad.model';
 @Component({
   selector: 'app-propiedades',
   imports: [FormsModule, RouterLink, FotoPropiedad],
@@ -33,15 +34,17 @@ import { FotoPropiedad } from './foto-propiedad';
           <p>{{ p.areaM2 }} m² · {{ p.dormitorios }} dormitorios</p>
           <strong>S/ {{ p.precio }} por reserva</strong>
           <p>{{ p.stock === 1 ? 'Disponible' : 'Reservada' }}</p>
-          <a class="button" routerLink="/reservas/nueva">Ver reserva</a>
-          @if (auth.tieneRol('ADMIN')) {
+          @if (!auth.autenticado() || auth.tieneRol('CLIENTE')) {
+            <a class="button" routerLink="/reservas/nueva">Ver reserva</a>
+          }
+          @if (puedeGestionar(p)) {
             <button (click)="editar(p)">Editar</button
             ><button (click)="eliminar(p.id)">Eliminar</button>
           }
         </article>
       }
     </div>
-    @if (auth.tieneRol('ADMIN')) {
+    @if (auth.tieneRol('ADMIN', 'VENDEDOR')) {
       <section class="panel">
         <h2>{{ form.id ? 'Editar propiedad' : 'Nueva propiedad' }}</h2>
         <form (ngSubmit)="guardar()">
@@ -134,6 +137,11 @@ export class Propiedades implements OnInit {
       (p.nombre + ' ' + p.ciudad).toLowerCase().includes(this.busqueda.toLowerCase()),
     );
   }
+  // ADMIN gestiona todas; VENDEDOR solo las propias (el backend lo vuelve a validar)
+  puedeGestionar(p: Propiedad): boolean {
+    return this.auth.tieneRol('ADMIN') || (this.auth.tieneRol('VENDEDOR') && p.idVendedor === this.auth.idCliente());
+  }
+
   editar(p: any) {
     this.form = { ...p, tipoPropiedadId: p.tipoPropiedad.id };
   }

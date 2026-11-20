@@ -10,6 +10,9 @@
       },
       {
         "name": "CLIENTE"
+      },
+      {
+        "name": "VENDEDOR"
       }
     ]
   },
@@ -56,8 +59,25 @@
         }
       ],
       "realmRoles": [
-        "ADMIN",
-        "CLIENTE"
+        "ADMIN"
+      ]
+    },
+    {
+      "username": "vendedor1",
+      "enabled": true,
+      "email": "vendedor1@casa.local",
+      "emailVerified": true,
+      "firstName": "vendedor1",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Casa2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "VENDEDOR"
       ]
     },
     {

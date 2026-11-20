@@ -13,7 +13,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'mi-perfil',
-        canActivate: [authGuard],
+        canActivate: [authGuard, rolGuard('CLIENTE')],
         loadComponent: () => import('./features/clientes/perfil').then((m) => m.Perfil),
       },
       {
@@ -22,7 +22,7 @@ export const routes: Routes = [
       },
       {
         path: 'tipos-propiedad',
-        canActivate: [authGuard],
+        canActivate: [authGuard, rolGuard('ADMIN')],
         loadComponent: () =>
           import('./features/propiedad/tipoPropiedad-list').then((m) => m.TipoPropiedadList),
       },
@@ -40,13 +40,13 @@ export const routes: Routes = [
       },
       {
         path: 'reservas/nueva',
-        canActivate: [authGuard],
+        canActivate: [authGuard, rolGuard('CLIENTE')],
         loadComponent: () =>
           import('./features/reservas/reserva-crear').then((m) => m.ReservaCrear),
       },
       {
         path: 'mis-pedidos',
-        canActivate: [authGuard],
+        canActivate: [authGuard, rolGuard('CLIENTE')],
         loadComponent: () => import('./features/reservas/mis-pedidos').then((m) => m.MisPedidos),
       },
       {

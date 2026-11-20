@@ -43,11 +43,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/propiedades/**", "/api/v1/tipos-propiedad/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/propiedades/**", "/api/v1/tipos-propiedad/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/propiedades/**", "/api/v1/tipos-propiedad/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/propiedades/**", "/api/v1/tipos-propiedad/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/reservas/**").hasAnyRole("CLIENTE", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/pagos").hasRole("ADMIN")
+                        // VENDEDOR y ADMIN gestionan propiedades; solo ADMIN gestiona los tipos
+                        .requestMatchers("/api/v1/tipos-propiedad/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/propiedades/**").hasAnyRole("ADMIN", "VENDEDOR")
+                        // solo CLIENTE reserva, paga y tiene perfil de comprador
+                        .requestMatchers("/api/v1/reservas/**", "/api/v1/clientes/me").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/pagos", "/api/v1/clientes").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/pagos/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

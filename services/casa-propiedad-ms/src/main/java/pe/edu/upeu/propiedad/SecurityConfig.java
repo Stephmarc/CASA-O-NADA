@@ -42,6 +42,7 @@ public class SecurityConfig {
                   .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                   .requestMatchers("/api/v1/propiedades/*/descontar-stock", "/api/v1/propiedades/*/restaurar-stock").permitAll()
                   .requestMatchers(HttpMethod.GET,"/api/v1/propiedades/**","/api/v1/tipos-propiedad/**").permitAll()
+                  .requestMatchers("/api/v1/propiedades/**").hasAnyRole("ADMIN", "VENDEDOR")
                   .anyRequest().hasRole("ADMIN"))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))

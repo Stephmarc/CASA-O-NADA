@@ -7,5 +7,6 @@ export interface Propiedad {
   precio: number;
   activo: boolean;
   stock: number;
+  idVendedor?: string | null;
   tipoPropiedad: TipoPropiedad;
 }

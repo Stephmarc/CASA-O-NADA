@@ -33,14 +33,15 @@ public class PropiedadService {
         return propiedadMapper.toResponse(buscarOFallar(id));
     }
 
-    public PropiedadResponse crear(PropiedadRequest request) {
+    public PropiedadResponse crear(PropiedadRequest request, String idVendedor) {
         Propiedad propiedad = propiedadMapper.toEntity(request);
+        propiedad.setIdVendedor(idVendedor);
         propiedad.setTipoPropiedad(buscarTipoPropiedadOFallar(request.getTipoPropiedadId()));
         return propiedadMapper.toResponse(propiedadRepository.save(propiedad));
     }
 
-    public PropiedadResponse actualizar(Long id, PropiedadRequest request) {
-        Propiedad propiedad = buscarOFallar(id);
+    public PropiedadResponse actualizar(Long id, PropiedadRequest request, String idUsuario, boolean esAdmin) {
+        Propiedad propiedad = buscarGestionable(id, idUsuario, esAdmin);
         propiedad.setDireccion(request.getDireccion());
         propiedad.setCiudad(request.getCiudad());
         propiedad.setAreaM2(request.getAreaM2());
@@ -54,8 +55,15 @@ public class PropiedadService {
         return propiedadMapper.toResponse(propiedadRepository.save(propiedad));
     }
 
-    public void eliminar(Long id) {
-        propiedadRepository.delete(buscarOFallar(id));
+    public void eliminar(Long id, String idUsuario, boolean esAdmin) {
+        propiedadRepository.delete(buscarGestionable(id, idUsuario, esAdmin));
+    }
+
+    // ADMIN gestiona todas; VENDEDOR solo las suyas. Ajena y no existente dan el mismo 404.
+    private Propiedad buscarGestionable(Long id, String idUsuario, boolean esAdmin) {
+        return propiedadRepository.findById(id)
+                .filter(p -> esAdmin || idUsuario.equals(p.getIdVendedor()))
+                .orElseThrow(() -> new ResourceNotFoundException("Propiedad no encontrado: " + id));
     }
 
     private Propiedad buscarOFallar(Long id) {
