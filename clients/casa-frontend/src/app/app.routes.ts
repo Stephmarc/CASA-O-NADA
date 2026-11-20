@@ -12,6 +12,15 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layout/layout').then((m) => m.Layout),
     children: [
       {
+        path: 'propiedad/:id',
+        loadComponent: () => import('./features/propiedad/detalle').then((m) => m.Detalle),
+      },
+      {
+        path: 'panel',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/panel/panel').then((m) => m.Panel),
+      },
+      {
         path: 'mi-perfil',
         canActivate: [authGuard, rolGuard('CLIENTE')],
         loadComponent: () => import('./features/clientes/perfil').then((m) => m.Perfil),

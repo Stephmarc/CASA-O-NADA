@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PropiedadService } from '../propiedad/propiedad-service';
 import { Propiedad } from '../propiedad/propiedad.model';
@@ -20,6 +20,7 @@ interface ItemSolicitud {
 export class ReservaCrear implements OnInit {
   private readonly propiedadService = inject(PropiedadService);
   private readonly reservaService = inject(ReservaService);
+  private readonly ruta = inject(ActivatedRoute);
 
   protected readonly propiedades = signal<Propiedad[]>([]);
   protected readonly solicitud = signal<ItemSolicitud[]>([]);
@@ -37,6 +38,8 @@ export class ReservaCrear implements OnInit {
     this.propiedadService.listar().subscribe({
       next: (data) => {
         this.propiedades.set(data.filter((p) => p.activo));
+        const elegida = this.propiedades().find((p) => p.id === Number(this.ruta.snapshot.queryParamMap.get('propiedad')));
+        if (elegida) this.agregar(elegida, 1);
         this.cargando.set(false);
       },
       error: () => {

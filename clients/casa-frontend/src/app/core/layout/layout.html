@@ -1,30 +1,79 @@
-<header class="header">
-  <a routerLink="/" class="home-link">CASA O NADA</a>
-  <div class="sesion-area">
-    @if (auth.autenticado()) {
-      <span class="sesion">{{ auth.nombreUsuario() }}</span>
-      <button type="button" (click)="auth.cerrarSesion()">Cerrar sesión</button>
-    } @else {
-      <button type="button" (click)="auth.iniciarLogin()">Iniciar sesión</button>
+<!-- Franja superior -->
+<div class="franja">
+  <div class="franja-in">
+    <span>Lima · Arequipa · Trujillo · Chiclayo · Tarapoto</span>
+    @if (!auth.autenticado()) {
+      <a href="#" (click)="$event.preventDefault(); auth.iniciarLogin()">Publica tu propiedad</a>
     }
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a routerLink="/" class="logo"><span class="logo-icono">⌂</span>CASA O NADA</a>
+
+    <nav class="menu" aria-label="Menú principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Propiedades</a>
+      @if (auth.autenticado()) {
+        <a routerLink="/panel" routerLinkActive="active">Panel</a>
+      }
+      @if (auth.tieneRol('CLIENTE')) {
+        <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
+        <a routerLink="/reservas/nueva" routerLinkActive="active">Reservar</a>
+        <a routerLink="/mis-pedidos" routerLinkActive="active">Mis reservas</a>
+      }
+      @if (auth.tieneRol('ADMIN')) {
+        <a routerLink="/tipos-propiedad" routerLinkActive="active">Tipos</a>
+        <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
+      }
+    </nav>
+
+    <div class="sesion-area">
+      @if (auth.autenticado()) {
+        <span class="sesion">{{ auth.nombreUsuario() }}</span>
+        <button type="button" class="secundario" (click)="auth.cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <button type="button" (click)="auth.iniciarLogin()">Iniciar sesión</button>
+      }
+    </div>
   </div>
 </header>
 
-<div class="body">
-  <nav class="sidebar" aria-label="Menú principal">
-    <a routerLink="/">Propiedades</a>
-    @if (auth.tieneRol('CLIENTE')) {
-      <a routerLink="/mi-perfil" routerLinkActive="active">Mi perfil</a>
-      <a routerLink="/reservas/nueva" routerLinkActive="active">Reservar propiedad</a>
-      <a routerLink="/mis-pedidos" routerLinkActive="active">Mis reservas</a>
-    }
-    @if (auth.tieneRol('ADMIN')) {
-      <a routerLink="/tipos-propiedad" routerLinkActive="active">Tipos de propiedad</a>
-      <a routerLink="/pagos" routerLinkActive="active">Pagos</a>
-    }
-  </nav>
+<main class="content">
+  <router-outlet />
+</main>
 
-  <main class="content">
-    <router-outlet />
-  </main>
-</div>
+<footer class="pie">
+  <div class="pie-in">
+    <div class="pie-marca">
+      <a routerLink="/" class="logo"><span class="logo-icono">⌂</span>CASA O NADA</a>
+      <p>Encuentra y separa tu próxima casa, departamento o terreno en las principales ciudades del Perú.</p>
+    </div>
+    <div>
+      <h4>Propiedades</h4>
+      <a routerLink="/" [queryParams]="{ tipo: 'Casa' }">Casas</a>
+      <a routerLink="/" [queryParams]="{ tipo: 'Departamento' }">Departamentos</a>
+      <a routerLink="/" [queryParams]="{ tipo: 'Terreno' }">Terrenos</a>
+    </div>
+    <div>
+      <h4>Ciudades</h4>
+      <a routerLink="/" [queryParams]="{ ciudad: 'Lima' }">Lima</a>
+      <a routerLink="/" [queryParams]="{ ciudad: 'Arequipa' }">Arequipa</a>
+      <a routerLink="/" [queryParams]="{ ciudad: 'Trujillo' }">Trujillo</a>
+      <a routerLink="/" [queryParams]="{ ciudad: 'Tarapoto' }">Tarapoto</a>
+    </div>
+    <div>
+      <h4>Mi cuenta</h4>
+      @if (auth.autenticado()) {
+        <a routerLink="/panel">Mi panel</a>
+      } @else {
+        <a href="#" (click)="$event.preventDefault(); auth.iniciarLogin()">Iniciar sesión</a>
+        <a href="#" (click)="$event.preventDefault(); auth.iniciarLogin()">Publicar una propiedad</a>
+      }
+    </div>
+  </div>
+  <div class="pie-base">
+    <span>© 2026 CASA O NADA. Todos los derechos reservados.</span>
+    <span>Fotografías: Unsplash</span>
+  </div>
+</footer>

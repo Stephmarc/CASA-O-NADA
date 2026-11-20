@@ -29,6 +29,7 @@ const FOTOS = {
         <img
           [src]="'/images/' + foto.archivo"
           [alt]="foto.descripcion + ': fotografía de referencia, no del inmueble anunciado'"
+          [title]="'Foto de referencia: ' + foto.autor + ' (Unsplash)'"
           width="960"
           height="640"
           loading="lazy"
@@ -38,16 +39,11 @@ const FOTOS = {
       } @else {
         <div class="sin-foto">Fotografía no disponible</div>
       }
-      <figcaption>
-        Foto de referencia ·
-        <a [href]="foto.fuente" target="_blank" rel="noopener noreferrer">{{ foto.autor }}</a>
-      </figcaption>
     </figure>
   `,
   styles: `
     :host {
       display: block;
-      margin-bottom: 20px;
     }
     figure {
       margin: 0;
@@ -57,9 +53,8 @@ const FOTOS = {
       display: block;
       width: 100%;
       height: auto;
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 4 / 3;
       object-fit: cover;
-      border-radius: 8px;
       background: #e1e9dc;
     }
     .sin-foto {

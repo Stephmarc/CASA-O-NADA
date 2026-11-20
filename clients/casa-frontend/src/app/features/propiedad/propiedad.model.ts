@@ -7,6 +7,10 @@ export interface Propiedad {
   precio: number;
   activo: boolean;
   stock: number;
+  direccion: string;
+  ciudad: string;
+  areaM2: number;
+  dormitorios: number;
   idVendedor?: string | null;
   tipoPropiedad: TipoPropiedad;
 }
