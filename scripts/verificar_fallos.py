@@ -2,6 +2,7 @@
 import verificar as v
 import pathlib,subprocess,time,json,datetime
 ROOT=pathlib.Path(__file__).resolve().parent.parent
+(ROOT/'evidencias').mkdir(exist_ok=True)
 def docker(*args,**kwargs):
     return subprocess.run(['docker','compose','-f',str(ROOT/'compose.json'),*args],check=True,capture_output=True,text=True,**kwargs)
 results=[]

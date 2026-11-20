@@ -1,9 +1,5 @@
 # CASA O NADA
 
-**Para estudiar el código:** [Guía paso a paso, recorrido de una reserva y preguntas de defensa](docs/GUIA_ESTUDIO.md).
-
-**Para la exposición de cada integrante:** [Guía de Stephmarc](docs/GUIA_ESTUDIO_STEPHMARC.md) · [Guía de Alanguia](docs/GUIA_ESTUDIO_ALANGUIA.md) · [Ensayo conjunto y cambios en vivo](docs/EXPOSICION_Y_CAMBIOS.md).
-
 El catálogo incluye fotografías reales de referencia por categoría. [Fuentes y créditos](docs/CREDITOS_FOTOS.md).
 
 Proyecto académico de reservas inmobiliarias para Desarrollo de Aplicaciones Distribuidas, adaptado de las guías S01–S16 de Angel Sullon Macalupu (UPeU). Incluye S07b. La implementación parte del repositorio público del docente; ver `docs/ORIGEN.md`.
@@ -54,20 +50,17 @@ Reserva consulta propiedad por Feign con Eureka y Circuit Breaker, bloquea la di
 
 Los pagos son simulados, sin cobros reales. `TARJETA_RECHAZADA` demuestra la compensación. RENIEC/SUNAT se consulta mediante un proveedor externo configurado por token; sin token se permite registrar el perfil manualmente y la consulta responde 503. No se inventan respuestas oficiales.
 
-## Código y evidencia
+## Estructura
 
 - `services/`: propiedad, reserva, pago, cliente y auth (histórico S07).
 - `infra/`: configuración centralizada, registro y Gateway.
 - `clients/casa-frontend/`: Angular y PKCE.
 - `compose.json`: despliegue integrado. Los compose por carpeta son referencias heredadas para las prácticas; usa el compose raíz para la entrega integrada.
 - `obs/`: dashboard, logs y alertas del despliegue raíz.
-- `docs/MATRIZ_SESIONES.md`: cobertura sesión por sesión.
 - `docs/ARQUITECTURA.md`: contratos y flujo.
-- `docs/REPARTO_Y_DEFENSA.md`: propuesta equilibrada y preguntas de sustentación.
-- `evidencias/`: resultados reales de ejecución, sin contraseñas ni JWT.
-- `docs/guias-docente/`: copia de las guías originales para revisar rúbricas y entregas individuales.
+- `scripts/`: arranque y pruebas reproducibles.
 
-No se atribuyen commits, capturas ni contribuciones personales que no ocurrieron. Las sustentaciones, las reflexiones y las capturas individuales con reloj y perfil deben realizarlas los integrantes según las rúbricas.
+Los scripts guardan sus resultados en `evidencias/`, una carpeta local excluida de Git.
 
 ## Detener
 
@@ -95,4 +88,3 @@ En S07, las claves del servidor JWT propio se generan al arrancar: reiniciarlo i
 
 - `python scripts/verificar_infra.py`: balanceo, perfiles y métricas.
 - `python scripts/verificar_s07.py`: requiere iniciar antes el perfil opcional `s07`.
-- `ESTADO_VERIFICADO.md`: resultados y alcance real de la entrega.

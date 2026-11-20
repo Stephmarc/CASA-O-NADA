@@ -1,6 +1,7 @@
 """Verifica el perfil opcional s07, sin mostrar el JWT ni contraseñas en evidencias."""
 import verificar as v
 import json, pathlib, time, base64
+(pathlib.Path(__file__).resolve().parent.parent/'evidencias').mkdir(exist_ok=True)
 base='http://localhost:18107'
 email='s07-'+str(int(time.time()))+'@casa.local'
 s,r,_=v.call('/api/v1/auth/registro','POST',{'email':email,'password':'Prueba2026!'},base=base)

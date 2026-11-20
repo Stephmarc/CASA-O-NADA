@@ -9,4 +9,5 @@
 *.pyc
 .env.*
 !.env.example
-evidencias/contenedores.json
+evidencias/
+material-estudio/

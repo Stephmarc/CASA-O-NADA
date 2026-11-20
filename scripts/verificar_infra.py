@@ -2,6 +2,7 @@
 import verificar as v
 import json,pathlib
 root=pathlib.Path(__file__).resolve().parent.parent/'evidencias'
+root.mkdir(exist_ok=True)
 def count(port):
     s,r,_=v.call('/actuator/metrics/http.server.requests',base='http://localhost:'+str(port))
     return next(m['value'] for m in r['measurements'] if m['statistic']=='COUNT') if s==200 else 0
