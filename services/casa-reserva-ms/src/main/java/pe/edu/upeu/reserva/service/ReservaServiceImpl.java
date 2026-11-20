@@ -45,15 +45,15 @@ public class ReservaServiceImpl implements ReservaService {
                     && propiedadConsultaService.descontarStock(item.getIdPropiedad(), item.getCantidad());
 
             if (!stockReservado) {
-                validacionCompleta = false;
-                detalles.add(ReservaDetalle.builder()
-                        .reserva(reserva)
-                        .idPropiedad(item.getIdPropiedad())
-                        .nombrePropiedad(null)
-                        .cantidad(item.getCantidad())
-                        .precioUnitario(null)
-                        .build());
-                continue;
+                // S13: sin cupo no se crea una reserva fantasma en CARRITO; se devuelve el cupo
+                // ya tomado de los items anteriores y se rechaza la solicitud con 409.
+                for (ReservaDetalle tomado : detalles) {
+                    propiedadConsultaService.restaurarStock(tomado.getIdPropiedad(), tomado.getCantidad());
+                }
+                log.warn("component=service idPropiedad={} status=rejected motivo=\"sin cupo disponible\"", item.getIdPropiedad());
+                throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "La propiedad " + item.getIdPropiedad() + " no tiene cupo disponible");
             }
 
             BigDecimal subtotal = propiedad.getPrecio()
